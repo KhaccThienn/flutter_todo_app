@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_cupertino_datetime_picker/flutter_cupertino_datetime_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todo_app/constants/colors.dart';
 import 'package:todo_app/models/todo_model.dart';
 import 'package:todo_app/services/todo_service.dart';
@@ -29,6 +30,14 @@ class _TodoFormState extends State<TodoForm> {
   final String _buttonLabelText = "Add New";
   String? _errorMsg;
   bool _isLoading = false;
+  int? _user_id ;
+
+  _loadUserData() async {
+    final pref = await SharedPreferences.getInstance();
+    setState(() {
+      _user_id = pref.getInt("id");
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -149,7 +158,7 @@ class _TodoFormState extends State<TodoForm> {
                                 ? null
                                 : int.tryParse(_idController.text),
                             todoText: _todoTextController.text,
-                            userId: 1,
+                            userId: _user_id,
                             isDone: 0,
                             createdDate: _createdDateController.text,
                             endDate: _endDateController.text);
