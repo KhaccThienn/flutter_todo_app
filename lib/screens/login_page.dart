@@ -1,4 +1,14 @@
+import 'dart:convert';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:material_dialogs/dialogs.dart';
+import 'package:material_dialogs/widgets/buttons/icon_outline_button.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:todo_app/models/login_view_model.dart';
+import 'package:todo_app/models/user_model.dart';
+import 'package:todo_app/screens/home_screen.dart';
+import 'package:todo_app/services/user_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -74,10 +84,53 @@ class _LoginPageState extends State<LoginPage> {
                 onPressed: () {
                   // Login logic
                   if (_formKey.currentState!.validate()) {
+                    var data = LoginViewModel(
+                        username: _userNameController.text,
+                        password: _passwordController.text);
                     // Login logic
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Processing Data')),
-                    );
+                    var res = UserService().postLogin(data);
+                    res.then((value) async {
+                      if (kDebugMode) {
+                        print(value.body);
+                      }
+                      if (value.body == "null") {
+                        Dialogs.materialDialog(
+                          msg:
+                              'Failed To Login, Username or Password is not correct !',
+                          title: "Notice",
+                          color: Colors.white,
+                          context: context,
+                          actions: [
+                            IconsOutlineButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              text: 'OK',
+                              color: Colors.red,
+                              textStyle: const TextStyle(color: Colors.white),
+                              iconColor: Colors.white,
+                            ),
+                          ],
+                        );
+                      } else {
+                        var data = jsonDecode(
+                            const Utf8Decoder().convert(value.bodyBytes));
+                        var user = User.fromJson(data);
+                        var prefs = await SharedPreferences.getInstance();
+                        prefs.setInt("id", user.id!);
+                        prefs.setString("display_name", user.displayName!);
+                        prefs.setString("avatar", user.avatar!);
+                        if (!context.mounted) return;
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const HomeScreen()));
+                      }
+                    }).catchError((error) async {
+                      if (kDebugMode) {
+                        print(error);
+                      }
+                    });
                   }
                 },
                 style: ElevatedButton.styleFrom(

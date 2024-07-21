@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todo_app/screens/login_page.dart';
 
 class SplashScreenV2 extends StatefulWidget {
@@ -15,7 +16,7 @@ class _SplashScreenV2State extends State<SplashScreenV2> {
     // TODO: implement initState
     super.initState();
     Future.delayed(
-      const Duration(seconds: 2),
+      const Duration(seconds: 6),
       () {
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => const LoginPage()));

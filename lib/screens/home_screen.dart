@@ -6,7 +6,9 @@ import 'package:intl/intl.dart';
 import 'package:material_dialogs/dialogs.dart';
 import 'package:material_dialogs/widgets/buttons/icon_button.dart';
 import 'package:material_dialogs/widgets/buttons/icon_outline_button.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todo_app/constants/colors.dart';
+import 'package:todo_app/constants/common.dart';
 import 'package:todo_app/models/todo_model.dart';
 import 'package:todo_app/screens/todo_form.dart';
 import 'package:todo_app/services/todo_service.dart';
@@ -22,6 +24,18 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   List<Todo> todoList = [];
   List<Todo> foundedTodo = [];
+  int? _user_id = 0;
+  String? _display_name;
+  String? _avatar;
+
+  _loadUserData() async {
+    final pref = await SharedPreferences.getInstance();
+    setState(() {
+      _user_id = pref.getInt("id");
+      _display_name = pref.getString("display_name");
+      _avatar = pref.getString("avatar");
+    });
+  }
 
   _loadTodoList(int userId) async {
     try {
@@ -40,8 +54,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
-    _loadTodoList(1);
+    _loadUserData();
     super.initState();
+    _loadTodoList(_user_id!);
     foundedTodo = todoList;
   }
 
@@ -78,10 +93,10 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 searchBox(),
                 const SizedBox(height: 20), // Add some space
-                const Text(
-                  'All Todos',
-                  style: TextStyle(
-                    fontSize: 24,
+                Text(
+                  'Hii ${_display_name!}, Here\'s Your All Todos',
+                  style: const TextStyle(
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -168,6 +183,7 @@ class _HomeScreenState extends State<HomeScreen> {
   AppBar _buildAppBar() {
     return AppBar(
       backgroundColor: tdBGColor,
+
       elevation: 0,
       title: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
         SizedBox(
@@ -175,7 +191,7 @@ class _HomeScreenState extends State<HomeScreen> {
           width: 40,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(20),
-            child: Image.asset('assets/images/logo.png'),
+            child: Image.network("${Common.domain}/${_avatar!}"),
           ),
         ),
       ]),
