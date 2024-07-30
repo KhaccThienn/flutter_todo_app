@@ -8,10 +8,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todo_app/models/login_view_model.dart';
 import 'package:todo_app/models/user_model.dart';
 import 'package:todo_app/screens/home_screen.dart';
+import 'package:todo_app/screens/main_page.dart';
+import 'package:todo_app/screens/register_screen.dart';
 import 'package:todo_app/services/user_service.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  final String? username;
+  final String? password;
+
+  const LoginPage({super.key, this.username, this.password});
+
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -21,6 +27,14 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _userNameController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _passwordVisiable = true;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    _userNameController.text = (widget.username ?? "");
+    _passwordController.text = (widget.password ?? "");
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,6 +59,7 @@ class _LoginPageState extends State<LoginPage> {
                   enabledBorder: OutlineInputBorder(
                     borderSide: BorderSide(color: Colors.white),
                   ),
+                  prefixIcon: Icon(Icons.person_3),
                   focusedBorder: OutlineInputBorder(
                     borderSide: BorderSide(color: Colors.white),
                   ),
@@ -60,17 +75,29 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _passwordController,
-                decoration: const InputDecoration(
-                  labelText: 'Password',
-                  labelStyle: TextStyle(color: Colors.white),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white),
-                  ),
-                ),
-                obscureText: true,
+                decoration: InputDecoration(
+                    labelText: 'Password',
+                    labelStyle: const TextStyle(color: Colors.white),
+                    enabledBorder: const OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white),
+                    ),
+                    focusedBorder: const OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white),
+                    ),
+                    suffixIcon: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            _passwordVisiable = !_passwordVisiable;
+                          });
+                        },
+                        icon: Icon(
+                          _passwordVisiable
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                          color: Colors.white,
+                        )),
+                    prefixIcon: const Icon(Icons.lock)),
+                obscureText: _passwordVisiable,
                 style: const TextStyle(color: Colors.white),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -93,7 +120,7 @@ class _LoginPageState extends State<LoginPage> {
                       if (kDebugMode) {
                         print(value.body);
                       }
-                      if (value.body == "null") {
+                      if (value!.body == "null") {
                         Dialogs.materialDialog(
                           msg:
                               'Failed To Login, Username or Password is not correct !',
@@ -118,13 +145,18 @@ class _LoginPageState extends State<LoginPage> {
                         var user = User.fromJson(data);
                         var prefs = await SharedPreferences.getInstance();
                         prefs.setInt("id", user.id!);
+                        if (kDebugMode) {
+                          print(user.id);
+                        }
                         prefs.setString("display_name", user.displayName!);
                         prefs.setString("avatar", user.avatar!);
+                        prefs.setString("password", user.password!);
                         if (!context.mounted) return;
-                        Navigator.pushReplacement(
+                        Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const HomeScreen()));
+                                builder: (context) => const MainPage()),
+                            (_) => false);
                       }
                     }).catchError((error) async {
                       if (kDebugMode) {
@@ -153,6 +185,22 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               const SizedBox(height: 24),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const RegisterPage()),
+                    );
+                  },
+                  child: const Text(
+                    'Register',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
             ],
           ),
         ),

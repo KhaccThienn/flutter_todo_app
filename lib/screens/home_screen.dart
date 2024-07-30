@@ -25,8 +25,8 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Todo> todoList = [];
   List<Todo> foundedTodo = [];
   int? _user_id = 0;
-  String? _display_name;
-  String? _avatar;
+  String? _display_name = "";
+  String? _avatar = "";
 
   _loadUserData() async {
     final pref = await SharedPreferences.getInstance();
@@ -84,7 +84,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       backgroundColor: tdBGColor,
-      appBar: _buildAppBar(),
       body: Stack(
         children: [
           Container(
@@ -168,7 +167,7 @@ class _HomeScreenState extends State<HomeScreen> {
         print(value.statusCode);
       }
       setState(() {
-        _loadTodoList(1);
+        _loadTodoList(_user_id!);
       });
     });
   }
@@ -183,7 +182,6 @@ class _HomeScreenState extends State<HomeScreen> {
   AppBar _buildAppBar() {
     return AppBar(
       backgroundColor: tdBGColor,
-
       elevation: 0,
       title: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
         SizedBox(

@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todo_app/constants/colors.dart';
 import 'package:todo_app/models/todo_model.dart';
 import 'package:todo_app/services/todo_service.dart';
+import 'package:todo_app/widgets/app_bar.dart';
 
 // ignore: must_be_immutable
 class TodoForm extends StatefulWidget {
@@ -30,7 +31,7 @@ class _TodoFormState extends State<TodoForm> {
   final String _buttonLabelText = "Add New";
   String? _errorMsg;
   bool _isLoading = false;
-  int? _user_id ;
+  int? _user_id = 0;
 
   _loadUserData() async {
     final pref = await SharedPreferences.getInstance();
@@ -40,19 +41,35 @@ class _TodoFormState extends State<TodoForm> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    // TODO: implement initState
+    _loadUserData();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: tdBGColor,
-      appBar: AppBar(
-        title: const Text("Add New Todo"),
-        backgroundColor: tdBGColor,
-      ),
+      appBar: AppBarBuilded(),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(10.0),
         child: Form(
           key: _formKey,
           child: Column(
             children: [
+              const Center(
+                child: Text(
+                  "Add New Todo",
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
               widget.todo != null
                   ? TextFormField(
                       controller: _idController,

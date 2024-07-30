@@ -77,12 +77,12 @@ class TodoItem extends StatelessWidget {
     );
   }
 
-  String getStatus(String? _endDate, int? isDone) {
+  String getStatus(String? endDateStr, int? isDone) {
     if (isDone == 1) {
       return completed;
     }
 
-    DateTime endDate = DateTime.parse(_endDate!);
+    DateTime endDate = DateTime.parse(endDateStr!);
     DateTime currentDate = DateTime.now();
 
     if (endDate.isAfter(currentDate)) {

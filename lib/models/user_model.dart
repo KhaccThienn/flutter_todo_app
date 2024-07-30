@@ -65,4 +65,14 @@ class User {
     data['avatar'] = this._avatar;
     return data;
   }
+
+  Map<String, String> toMap() {
+    return {
+      "id": _id.toString(),
+      "username": _username!,
+      "display_name": _displayName!,
+      "password": _password!,
+      "avatar": _avatar!,
+    };
+  }
 }
